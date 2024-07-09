@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from numba import njit
 from tqdm import tqdm
 import math
+import pandas as pd
+from tqdm import tqdm
 #%% Definimos los parametros que vamos a usar en la simulacion completa
 global A, a, b, k, alpha, beta, gamma_ARNm, K_protein, gamma_protein, K_signal, Hill
 
@@ -110,6 +112,32 @@ for S_Signal in tqdm(Enviroment_Signal):
     Cells_Simulation.append(celula_individual)
 Cells_Simulation = np.array(Cells_Simulation)
 #%%
+
+#%%
+from sklearn.feature_selection import mutual_info_classif
+#%%
+A = mutual_info_classif(Enviroment_Signal.reshape(-1,1), Cells_Simulation[:,-10,4].reshape(-1,1))
+#%%
+print(A)
+#%%
+plt.hist(Enviroment_Signal)
+#%%
+informacion_Lista = []
+for i in tqdm(range(0,700)):
+
+    data_C1 = {'S': Cells_Simulation[:,i,4],
+            'Z': Cells_Simulation[:,i,4]}
+    Cov_matrix_C1 = np.array(pd.DataFrame.cov(pd.DataFrame(data_C1)))
+
+    Informacion = (1/2)*np.log2((Cov_matrix_C1[0][0]* Cov_matrix_C1[1][1])/(Cov_matrix_C1[0][0]* Cov_matrix_C1[1][1] - (Cov_matrix_C1[0][1])**2))
+    informacion_Lista.append(Informacion)
+#%%
+print(Cov_matrix_C1)
+#%%
+
+Cells_Simulation.shape
+
+#%%
 Distribucion_proteina = Cells_Simulation[:,-10,4]
 plt.hist(Distribucion_proteina)
 #%% Estados Estacionarios de especies
@@ -131,3 +159,10 @@ plt.title(r"Stationary States vs Growth Rates", fontsize = 14)
 plt.scatter([0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0], Stationary_States_ARNm, label = r"$ARNm_{ss}$")
 plt.scatter([0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0], Stationary_States_Protein, label = r"$Protein_{ss}$")
 plt.legend()
+#%%
+
+plt.plot(Cells_Simulation[0,:,4])
+# %%
+Enviroment_Signal = np.random.negative_binomial(10, 0.2, size=num_cel)
+plt.hist(Enviroment_Signal, bins = 50)
+# %%
